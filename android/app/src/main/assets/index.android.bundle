@@ -61552,43 +61552,43 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   });
 
                   _this.setState({
-                    FetchStatus: "RUNNING"
-                  });
-
-                  _this.setState({
                     FetchMessage: "Starting auto fetch ... "
                   });
 
-                  _context7.next = 6;
+                  _context7.next = 5;
                   return regeneratorRuntime.awrap(new Promise(function (resolve) {
                     return setTimeout(function () {
                       return resolve();
                     }, 2000);
                   }));
 
-                case 6:
+                case 5:
                   count = 1;
 
-                case 7:
+                  _this.setState({
+                    FetchStatus: "RUNNING"
+                  });
+
+                  _this.writeFetchMessage("Fetching every " + _this.state.Timer + " seconds...");
+
+                  _this.writeFetchMessage("Ready!");
+
+                case 9:
                   if (!(_this.state.FetchStatus == "RUNNING")) {
-                    _context7.next = 55;
+                    _context7.next = 57;
                     break;
                   }
 
-                  _this.writeFetchMessage("Running fetch count : " + count);
-
-                  _context7.next = 11;
+                  _context7.next = 12;
                   return regeneratorRuntime.awrap(_this.pullSVCAMessage());
 
-                case 11:
+                case 12:
                   result = _context7.sent;
 
                   if (!(result == 0)) {
                     _context7.next = 16;
                     break;
                   }
-
-                  _this.writeFetchMessage("No outbound messages from the server.");
 
                   _context7.next = 39;
                   break;
@@ -61610,7 +61610,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     break;
                   }
 
-                  _this.writeFetchMessage("Error");
+                  _this.writeFetchMessage("Error accessing SVCA: " + result);
 
                   _context7.next = 39;
                   break;
@@ -61663,11 +61663,11 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   found = _context7.sent;
 
                   if (!found) {
-                    _context7.next = 49;
+                    _context7.next = 51;
                     break;
                   }
 
-                  _this.writeFetchMessage("Found new SMS message from " + _this.state.ToInbound + ".");
+                  _this.writeFetchMessage("Found new SMS from " + _this.state.ToInbound + ".");
 
                   _this.saveSMSToSVCA();
 
@@ -61687,21 +61687,24 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     _this.clearInboundState();
                   } else {}
 
-                case 49:
+                  _context7.next = 51;
+                  break;
+
+                case 51:
                   timer = parseFloat(_this.state.Timer) * 1000;
-                  _context7.next = 52;
+                  _context7.next = 54;
                   return regeneratorRuntime.awrap(new Promise(function (resolve) {
                     return setTimeout(function () {
                       return resolve();
                     }, timer);
                   }));
 
-                case 52:
+                case 54:
                   count = count + 1;
-                  _context7.next = 7;
+                  _context7.next = 9;
                   break;
 
-                case 55:
+                case 57:
                 case "end":
                   return _context7.stop();
               }
@@ -61767,6 +61770,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         autoFetchMessage: "Running Auto Fetch...",
         FetchMessage: "",
         FetchStatus: "STOP",
+        SMS_Received: "",
         Timer: "3",
         smsList: [],
         textColor: "#000",
@@ -61779,6 +61783,9 @@ __d(function (global, _require, module, exports, _dependencyMap) {
     }
 
     _createClass(App, [{
+      key: "componentDidMount",
+      value: function componentDidMount() {}
+    }, {
       key: "wait",
       value: function wait(ms, message) {
         return regeneratorRuntime.async(function wait$(_context9) {
@@ -61816,9 +61823,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
         var filter = {
           box: 'inbox',
-          maxCount: 10,
-          read: 0,
-          indexFrom: 0
+          read: 0
         };
 
         _reactNativeGetSmsAndroid2.default.list(JSON.stringify(filter), function (fail) {}, function (count, smsList) {
@@ -61879,8 +61884,6 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     LastDeleteSMSState: err
                   });
                 }, function (success) {
-                  _this5.listSMS();
-
                   _this5.setState({
                     LastDeleteSMSState: "Success"
                   });
@@ -61974,7 +61977,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 found = false;
 
                 if (!(this.state.smsList.length > 0)) {
-                  _context13.next = 20;
+                  _context13.next = 22;
                   break;
                 }
 
@@ -62026,9 +62029,17 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 this.clearInboundState();
 
               case 20:
+                _context13.next = 24;
+                break;
+
+              case 22:
+                _context13.next = 24;
+                return regeneratorRuntime.awrap(this.listSMS());
+
+              case 24:
                 return _context13.abrupt("return", found);
 
-              case 21:
+              case 25:
               case "end":
                 return _context13.stop();
             }
@@ -62190,7 +62201,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 628
+              lineNumber: 644
             }
           },
           _react3.default.createElement(_reactNativeElements.Header, {
@@ -62216,7 +62227,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             },
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 629
+              lineNumber: 645
             }
           }),
           _react3.default.createElement(
@@ -62225,7 +62236,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.container_main,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 647
+                lineNumber: 663
               }
             },
             _react3.default.createElement(
@@ -62233,7 +62244,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 648
+                  lineNumber: 664
                 }
               },
               _react3.default.createElement(
@@ -62242,7 +62253,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.itemView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 649
+                    lineNumber: 665
                   }
                 },
                 _react3.default.createElement(
@@ -62252,7 +62263,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     onPress: this.onPress_GetNextOutboundMessage,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 650
+                      lineNumber: 666
                     }
                   },
                   _react3.default.createElement(
@@ -62263,7 +62274,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 654
+                        lineNumber: 670
                       }
                     },
                     " Get Next Outbound Message "
@@ -62277,7 +62288,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     }],
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 656
+                      lineNumber: 672
                     }
                   },
                   _react3.default.createElement(
@@ -62285,7 +62296,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     {
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 657
+                        lineNumber: 673
                       }
                     },
                     _react3.default.createElement(
@@ -62294,7 +62305,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         style: [styles.messageText],
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 658
+                          lineNumber: 674
                         }
                       },
                       "To : ",
@@ -62319,7 +62330,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 670
+                      lineNumber: 686
                     }
                   },
                   _react3.default.createElement(
@@ -62329,7 +62340,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       onPress: this.onPress_sendSMS,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 671
+                        lineNumber: 687
                       }
                     },
                     _react3.default.createElement(
@@ -62340,7 +62351,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 675
+                          lineNumber: 691
                         }
                       },
                       " Send SMS "
@@ -62354,7 +62365,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.itemView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 681
+                    lineNumber: 697
                   }
                 },
                 _react3.default.createElement(
@@ -62364,7 +62375,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     onPress: this.onPress_GetNextSMSInboundMessages,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 682
+                      lineNumber: 698
                     }
                   },
                   _react3.default.createElement(
@@ -62375,7 +62386,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 687
+                        lineNumber: 703
                       }
                     },
                     " Get Next SMS (Inbound) Message "
@@ -62387,7 +62398,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: [styles.messageContainer],
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 689
+                      lineNumber: 705
                     }
                   },
                   _react3.default.createElement(
@@ -62395,7 +62406,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     {
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 690
+                        lineNumber: 706
                       }
                     },
                     _react3.default.createElement(
@@ -62404,7 +62415,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         style: [styles.messageText],
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 691
+                          lineNumber: 707
                         }
                       },
                       "From : ",
@@ -62433,7 +62444,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 707
+                      lineNumber: 723
                     }
                   },
                   _react3.default.createElement(
@@ -62443,7 +62454,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       onPress: this.onPress_SendToSvca,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 708
+                        lineNumber: 724
                       }
                     },
                     _react3.default.createElement(
@@ -62454,7 +62465,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 712
+                          lineNumber: 728
                         }
                       },
                       " Send SMS to SVCA "
@@ -62464,7 +62475,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 714
+                      lineNumber: 730
                     }
                   })
                 )
@@ -62475,7 +62486,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.itemView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 721
+                    lineNumber: 737
                   }
                 },
                 _react3.default.createElement(
@@ -62487,7 +62498,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     },
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 722
+                      lineNumber: 738
                     }
                   },
                   _react3.default.createElement(
@@ -62495,7 +62506,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     {
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 723
+                        lineNumber: 739
                       }
                     },
                     " Delete message "
@@ -62506,7 +62517,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 725
+                      lineNumber: 741
                     }
                   },
                   _react3.default.createElement(_reactNative.TextInput, {
@@ -62526,7 +62537,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     underlineColorAndroid: 'transparent',
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 726
+                      lineNumber: 742
                     }
                   })
                 ),
@@ -62536,7 +62547,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 742
+                      lineNumber: 758
                     }
                   },
                   _react3.default.createElement(
@@ -62546,7 +62557,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       onPress: this.onPress_DeleteMessageFromSVCA,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 743
+                        lineNumber: 759
                       }
                     },
                     _react3.default.createElement(
@@ -62557,7 +62568,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 747
+                          lineNumber: 763
                         }
                       },
                       " Delete Message from SVCA Server "
@@ -62571,7 +62582,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.itemView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 753
+                    lineNumber: 769
                   }
                 },
                 _react3.default.createElement(
@@ -62583,7 +62594,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     },
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 754
+                      lineNumber: 770
                     }
                   },
                   _react3.default.createElement(
@@ -62591,7 +62602,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     {
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 755
+                        lineNumber: 771
                       }
                     },
                     " Run Auto Fetch "
@@ -62603,7 +62614,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.pickerBox,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 757
+                      lineNumber: 773
                     }
                   },
                   _react3.default.createElement(
@@ -62615,7 +62626,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 758
+                        lineNumber: 774
                       }
                     },
                     _react3.default.createElement(
@@ -62623,7 +62634,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       {
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 759
+                          lineNumber: 775
                         }
                       },
                       " Select fetch interval "
@@ -62637,7 +62648,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 761
+                        lineNumber: 777
                       }
                     },
                     _react3.default.createElement(
@@ -62655,7 +62666,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 762
+                          lineNumber: 778
                         }
                       },
                       _react3.default.createElement(_reactNative.Picker.Item, {
@@ -62663,7 +62674,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         value: "3",
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 766
+                          lineNumber: 782
                         }
                       }),
                       _react3.default.createElement(_reactNative.Picker.Item, {
@@ -62671,7 +62682,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         value: "10",
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 767
+                          lineNumber: 783
                         }
                       }),
                       _react3.default.createElement(_reactNative.Picker.Item, {
@@ -62679,7 +62690,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         value: "30",
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 768
+                          lineNumber: 784
                         }
                       }),
                       _react3.default.createElement(_reactNative.Picker.Item, {
@@ -62687,7 +62698,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         value: "60",
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 769
+                          lineNumber: 785
                         }
                       })
                     )
@@ -62699,7 +62710,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 773
+                      lineNumber: 789
                     }
                   },
                   _react3.default.createElement(
@@ -62709,7 +62720,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       onPress: this.onPress_AutoFetch,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 774
+                        lineNumber: 790
                       }
                     },
                     _react3.default.createElement(
@@ -62720,7 +62731,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 778
+                          lineNumber: 794
                         }
                       },
                       " Run "
@@ -62739,7 +62750,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               onRequestClose: function onRequestClose() {},
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 787
+                lineNumber: 803
               }
             },
             _react3.default.createElement(
@@ -62753,7 +62764,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 },
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 793
+                  lineNumber: 809
                 }
               },
               _react3.default.createElement(
@@ -62762,7 +62773,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.waitingView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 798
+                    lineNumber: 814
                   }
                 },
                 _react3.default.createElement(_reactNative.ActivityIndicator, {
@@ -62770,7 +62781,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   color: "#098",
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 799
+                    lineNumber: 815
                   }
                 }),
                 _react3.default.createElement(
@@ -62778,7 +62789,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 803
+                      lineNumber: 819
                     }
                   },
                   _react3.default.createElement(
@@ -62790,7 +62801,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       }],
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 804
+                        lineNumber: 820
                       }
                     },
                     this.state.textWait ? this.state.textWait : "Waiting..."
@@ -62804,7 +62815,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       numberOfLines: 1,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 810
+                        lineNumber: 826
                       }
                     },
                     this.state.subTextWait
@@ -62822,7 +62833,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               onRequestClose: function onRequestClose() {},
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 824
+                lineNumber: 840
               }
             },
             _react3.default.createElement(
@@ -62840,7 +62851,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 },
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 830
+                  lineNumber: 846
                 }
               },
               _react3.default.createElement(
@@ -62854,7 +62865,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   },
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 846
+                    lineNumber: 862
                   }
                 },
                 _react3.default.createElement(_reactNative.ActivityIndicator, {
@@ -62862,7 +62873,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   color: "#098",
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 859
+                    lineNumber: 875
                   }
                 }),
                 _react3.default.createElement(
@@ -62874,7 +62885,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     }],
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 865
+                      lineNumber: 881
                     }
                   },
                   this.state.textWait ? this.state.textWait : this.state.autoFetchMessage
@@ -62896,7 +62907,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   },
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 874
+                    lineNumber: 890
                   }
                 },
                 _react3.default.createElement(
@@ -62912,7 +62923,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     },
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 888
+                      lineNumber: 904
                     }
                   },
                   _react3.default.createElement(
@@ -62923,7 +62934,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 892
+                        lineNumber: 908
                       }
                     },
                     this.state.FetchMessage !== "" ? this.state.FetchMessage : null
@@ -62941,7 +62952,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   },
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 900
+                    lineNumber: 916
                   }
                 },
                 _react3.default.createElement(
@@ -62951,7 +62962,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     onPress: this.onPress_StopAutoFetch,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 909
+                      lineNumber: 925
                     }
                   },
                   _react3.default.createElement(
@@ -62962,7 +62973,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 913
+                        lineNumber: 929
                       }
                     },
                     " Stop Auto Fetch "

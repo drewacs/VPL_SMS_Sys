@@ -91,6 +91,8 @@ export default class App extends Component<Props> {
         FetchMessage: "",
         FetchStatus: "STOP",
 
+        SMS_Received: "",
+
         Timer: "3",
         smsList: [],
 
@@ -110,13 +112,16 @@ export default class App extends Component<Props> {
       this.listSMS();
   }
 
-  //componentDidMount() {
+  componentDidMount() {
     //setInterval(() => {
     //  this.setState({
     //    visible: !this.state.visible
     //  });
     //}, 3000);
-  //}
+    //DeviceEventEmitter.addListener('sms_onDelivery', (msg) => {
+    //  this.setState({eventSMSReceived:msg});
+    //});
+  }
 
 
   async wait(ms, message) {
@@ -128,9 +133,8 @@ export default class App extends Component<Props> {
   listSMS() {
     var filter = {
       box: 'inbox',
-      maxCount: 10,
+      //maxCount: 10,
       read: 0,
-      indexFrom: 0,
     };
 
     SmsAndroid.list(JSON.stringify(filter), (fail) => {
@@ -140,6 +144,8 @@ export default class App extends Component<Props> {
       //console.log(arr);
       this.setState({ smsList: arr });
     });
+
+    //this.writeFetchMessage("Getting SMS List")
   }
 
   async sendSMS() {
@@ -168,12 +174,12 @@ export default class App extends Component<Props> {
       //Alert.alert("Failed to deleted SMS. Check console");
       //console.log("SMS DELETE ERROR", err);
       this.setState({LastDeleteSMSState:err});
-  }, (success) => {
+    }, (success) => {
       //Alert.alert("SMS deleted successfully");
-      this.listSMS();
+      //await this.listSMS();
       this.setState({LastDeleteSMSState: "Success"});
-  });
-}
+    });
+  }
 
 
   async pullSVCAMessage() {
@@ -365,6 +371,9 @@ export default class App extends Component<Props> {
       }
 
     }
+    else {
+      await this.listSMS();
+    }
 
     return found;
 
@@ -527,26 +536,29 @@ export default class App extends Component<Props> {
       this.setState({autoFetchMessage: "Running Auto Fetch..."});
       this.setState({visibleAutoFetch: true});
 
-      this.setState({FetchStatus:"RUNNING"});
+
       this.setState({FetchMessage:"Starting auto fetch ... "});
 
       await new Promise((resolve) => setTimeout(() => resolve(), 2000));
 
       let count = 1;
+      this.setState({FetchStatus:"RUNNING"});
+      this.writeFetchMessage("Fetching every "+this.state.Timer+" seconds...");
+      this.writeFetchMessage("Ready!");
       while(this.state.FetchStatus == "RUNNING") {
-        this.writeFetchMessage("Running fetch count : " + count);
+        //this.writeFetchMessage("Running fetch count : " + count);
 
          // Get Next OUTBOUND Message from SVCA server
         result = await this.pullSVCAMessage();
 
         if( result == 0 ) {
-          this.writeFetchMessage("No outbound messages from the server.");
+          //this.writeFetchMessage("No outbound messages from the server.");
         }
         else if ( result == -1 ){
           this.writeFetchMessage("Unable to access server!");
         }
         else if ( result != 1 ) {
-          this.writeFetchMessage("Error");
+          this.writeFetchMessage("Error accessing SVCA: " + result);
         }
         else {
           this.writeFetchMessage("Outbound message to "+this.state.SendTo+" found!");
@@ -573,7 +585,7 @@ export default class App extends Component<Props> {
         found = await this.getNextSMS();
 
         if (found ) {
-          this.writeFetchMessage("Found new SMS message from "+this.state.ToInbound+".");
+          this.writeFetchMessage("Found new SMS from "+this.state.ToInbound+".");
 
 
           this.saveSMSToSVCA();
@@ -587,8 +599,12 @@ export default class App extends Component<Props> {
             this.clearInboundState();
           }
           else {
+
             //Retry
           }
+        }
+        else {
+          //this.writeFetchMessage("No new SMS: "+found);
         }
 
 
