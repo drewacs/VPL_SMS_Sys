@@ -1,7 +1,13 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
+ * Developer: Felipe Andrew Lacaya
+ * Email: drewacs@gmail.com
+ * Project Name: SMS Proxy for Trucking Company
+ * Description: Proxy between the Trucking company server and clients (Driver
+ *              and customer). Driver sends request to server for schedules
+ *              while customer sends request for deliveries to the server via
+ *              this application while it turns sends this to SQL server for
+ *              processing. SQL server will send response via this app, and will
+ *              send the response to the Driver or customer for the response.
  */
 
 import React, { Component } from 'react';
@@ -21,9 +27,9 @@ import {
 } from 'react-native';
 
 import {
-  Button,
+  //Button,
   Header,
-  Overlay,
+  //Overlay,
 } from 'react-native-elements';
 
 //import React, { View, Text } from 'react-native';
@@ -33,13 +39,14 @@ import {
 
 import SmsAndroid  from 'react-native-get-sms-android';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import DeviceInfo from 'react-native-device-info';
 
 
 /* List SMS messages matching the filter */
-var filter = {
-    box: 'inbox', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
+//var filter = {
+    //box: 'inbox', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
     // the next 4 filters should NOT be used together, they are OR-ed so pick one
-    read: 0, // 0 for unread SMS, 1 for SMS already read
+    //read: 0, // 0 for unread SMS, 1 for SMS already read
     //_id: 1234, // specify the msg id
     //address: '+1888------', // sender's phone number
     //body: 'How are you', // content to match
@@ -49,7 +56,7 @@ var filter = {
     //box: 'inbox',
     //maxCount: 10,
 
-};
+//};
 
 var sms_data = null;
 var sms_count;
@@ -102,6 +109,21 @@ export default class App extends Component<Props> {
         subTextWait: "",
 
 
+        lastOutboundMsgLoc: "",
+        lastOutboundMsgTry: 0,
+
+
+
+        //Admin States:
+
+        adminSendError: true,
+        adminSMSNumber: "5108670000",
+        adminTexted: false,
+
+        smsRetry: 5,
+        serverRetry: 10,
+
+
 
 
       }
@@ -109,7 +131,14 @@ export default class App extends Component<Props> {
       this.screenWidth = Dimensions.get('window').width,
       this.screenHeight = Dimensions.get('window').height,
 
+      this.retry = 5,
+      this.ardErrorCode = "^",
+      this.serverAccessErrorTry = 0,
+      this.serverAccessThreasholdGetHelp = 10,
+
       this.listSMS();
+
+      this.phoneNumber = DeviceInfo.getPhoneNumber();
   }
 
   componentDidMount() {
@@ -168,6 +197,22 @@ export default class App extends Component<Props> {
   }
 
 
+  async sendSMStoAdmin(message) {
+    result = 0;
+
+    if( this.state.adminSendError && this.state.adminSMSNumber != "" ) {
+      this.writeFetchMessage("Sending to admin...");
+      await SmsAndroid.autoSend(this.state.adminSMSNumber, message, (err) => {
+        result = err;
+      }, (success) => {
+        result = 1;
+
+      });
+    }
+    return result;
+  }
+
+
   async deleteSMS(id) {
 
     await SmsAndroid.delete(id, (err) => {
@@ -190,20 +235,20 @@ export default class App extends Component<Props> {
     .then((resp)=>{ return resp.text() })
     .then((text)=>{
       //console.log(text)
-      res_result = text.substring(text.lastIndexOf("RESULT:")+8, text.lastIndexOf("<br>END"));
+      res_result = text.substring(text.lastIndexOf("#RESULT:")+9, text.lastIndexOf(" ~<br>#END"));
 
       //if( res_result == 'NOMSG' ) {
       if( text.search('NOMSG') != -1 ) {
         result =  0;
       }
       else if ( text.search('LOCATION') != -1 ){
-        location = text.substring(text.lastIndexOf("LOCATION:")+10, text.lastIndexOf(" ~<br>TO"));
-        to = text.substring(text.lastIndexOf("TO:")+4, text.lastIndexOf(" ~<br>MSG"));
+        location = text.substring(text.lastIndexOf("#LOCATION:")+10, text.lastIndexOf(" ~<br>#TO"));
+        to = text.substring(text.lastIndexOf("#TO:")+5, text.lastIndexOf(" ~<br>#MSG"));
 
-        msg = text.substring(text.lastIndexOf("MSG:")+5, text.lastIndexOf(" ~<br>END"));
+        msg = text.substring(text.lastIndexOf("#MSG:")+6, text.lastIndexOf(" ~<br>#END"));
         //replace character [`] as enter or carriege return \n
         msg = msg.replace(/\`/g, '\n');
-        msg_encoded = encodeURI(msg);
+        msg_encoded = encodeURIComponent(msg);
         this.setState({
           SendTo: to,
           Message: msg,
@@ -275,10 +320,22 @@ export default class App extends Component<Props> {
         result = await this.sendSMS();
         await this.wait(5000, "Sending SMS message to\n"+to);
       //Alert.alert("Message Sent to " + this.state.SendTo this.state.Message);
+        if( this.state.LastSendState == "" ) {
+          //try to wait 3 times x 5000
+          waiting_response = 0;
+          while( this.state.LastSendState == "" && waiting_response < 3 ) {
+            await this.wait(5000, "Sending SMS message to\n"+to);
+            waiting_response = waiting_response + 1;
+          }
+
+          if( this.state.LastSendState == "" ) {
+            this.setState({LastSendState:"SMSSENDNOTSURE"});
+          }
+        }
         Alert.alert("Message Sent to " + to, "Result: ["+this.state.LastSendState+"]");
 
         if( this.state.LastSendState == "Success" ) {
-          await this.deleteMessage(loc, false);
+          await this.deleteMessage(loc, false, null);
         }
       })();
       this.setState({LastSendState:""});
@@ -299,7 +356,7 @@ export default class App extends Component<Props> {
       location = this.state.Loc;
 
       (async () => {
-        await this.deleteMessage(location, false);
+        await this.deleteMessage(location, false, null);
         await this.wait(3000, "Marking message as SENT.");
 
         Alert.alert("Marking message as Sent.", "Result : ["+this.state.LastDeleteStatus+"]" );
@@ -332,6 +389,12 @@ export default class App extends Component<Props> {
   }
 
 
+  //fixedEncodeURIComponent (str) {
+  //  return encodeURIComponent(str).replace(/[!'()*]/g, escape);
+  //}
+
+
+
   async getNextSMS () {
     var found = false;
 
@@ -343,10 +406,12 @@ export default class App extends Component<Props> {
           object = this.state.smsList[i];
 
           if(object.read == 0) {
+            //msg = this.fixedEncodeURIComponent(object.body);
             msg = encodeURIComponent(object.body);
+            //msg = msg.replace(/\'/g, '%27');
             //Replace carriege return (enter) to character [`]
             msg = msg.replace(/%0A/g, "`");
-            uri = "http://www.svcausa.com/smsgprs/smssend.php?to="+object.address+"&msg="+msg;
+            uri = "http://www.svcausa.com/smsgprs/smssend.php?acp="+this.phoneNumber+"&from="+object.address+"&msg="+msg;
             this.setState(
               {
                 ToInbound: object.address,
@@ -405,8 +470,8 @@ export default class App extends Component<Props> {
         return resp.text()
       })
       .then((text)=>{
-        result = text.substring(text.lastIndexOf("RESULT:")+8, text.lastIndexOf("<br>TRNO"));
-        trno = text.substring(text.lastIndexOf("TRNO:")+6, text.lastIndexOf(".<br>"));
+        result = text.substring(text.lastIndexOf("#RESULT:")+9, text.lastIndexOf(" ~<br>#LOCATION"));
+        trno = text.substring(text.lastIndexOf("#LOCATION:")+11, text.lastIndexOf(" ~<br>"));
 
         if( result == 'OK') {
           //Alert.alert("Send to SVCA Success!", "TR No: " + trno );
@@ -457,7 +522,7 @@ export default class App extends Component<Props> {
 
 
 
-  async deleteMessage(location,permanent) {
+  async deleteMessage(location,permanent,param) {
 
     let permanent_code = "";
     let mark = "SENT";
@@ -465,6 +530,10 @@ export default class App extends Component<Props> {
     if(permanent) {
       permanent_code = "*";
       mark = "DELETE";
+    }
+
+    if ( !permanent && param != null ) {
+      permanent_code = param;
     }
 
     uri = "http://www.svcausa.com/smsgprs/smsdelete.php?loc="+location+permanent_code;
@@ -478,7 +547,7 @@ export default class App extends Component<Props> {
       } else {
         text = await response.text();
 
-        result = await text.substring(text.lastIndexOf("RESULT:")+8, text.lastIndexOf("."));
+        result = await text.substring(text.lastIndexOf("#RESULT:")+9, text.lastIndexOf(" ~"));
 
 
         if( result == 'OK') {
@@ -505,7 +574,7 @@ export default class App extends Component<Props> {
     if( this.state.DeleteArdIn ) {
 
       (async () => {
-        await this.deleteMessage(this.state.DeleteArdIn, true);
+        await this.deleteMessage(this.state.DeleteArdIn, true, null);
         await this.wait(3000, "Deleting message from SVCA");
 
         Alert.alert("Deleting message from SVCA", "Result : ["+this.state.LastDeleteStatus+"]" );
@@ -542,6 +611,9 @@ export default class App extends Component<Props> {
       await new Promise((resolve) => setTimeout(() => resolve(), 2000));
 
       let count = 1;
+      this.setState({lastOutboundMsgTry: 0});
+      this.setState({lastOutboundMsgLoc: ""});
+
       this.setState({FetchStatus:"RUNNING"});
       this.writeFetchMessage("Fetching every "+this.state.Timer+" seconds...");
       this.writeFetchMessage("Ready!");
@@ -556,28 +628,83 @@ export default class App extends Component<Props> {
         }
         else if ( result == -1 ){
           this.writeFetchMessage("Unable to access server!");
+          this.serverAccessErrorTry = this.serverAccessErrorTry + 1;
         }
         else if ( result != 1 ) {
           this.writeFetchMessage("Error accessing SVCA: " + result);
+          this.serverAccessErrorTry = this.serverAccessErrorTry + 1;
         }
         else {
+          date = new Date();
+          this.writeFetchMessage(date);
           this.writeFetchMessage("Outbound message to "+this.state.SendTo+" found!");
+
+
+
 
           this.setState({LastSendState:""});
 
           to = this.state.SendTo;
           loc = this.state.Loc;
+
+
+          //if outbound Loc value is the same as lastOutboundMsgLoc
+          if( this.state.Loc == this.state.lastOutboundMsgLoc ) {
+              retry = this.state.lastOutboundMsgTry + 1;
+              this.setState({lastOutboundMsgTry: retry});
+              this.writeFetchMessage("Retry #"+this.state.lastOutboundMsgTry+" ...");
+          }
+
+
           result = await this.sendSMS();
-          await new Promise((resolve) => setTimeout(() => resolve(), 4000));
+          await new Promise((resolve) => setTimeout(() => resolve(), 5000));
+          if( this.state.LastSendState == "" ) {
+            //try to wait 3 times x 5000
+            waiting_response = 0;
+            while( this.state.LastSendState == "" && waiting_response < 3 ) {
+              //await this.wait(5000, "Sending SMS message to\n"+to);
+              await new Promise((resolve) => setTimeout(() => resolve(), 5000));
+              waiting_response = waiting_response + 1;
+            }
+
+            if( this.state.LastSendState == "" ) {
+              this.setState({LastSendState:"SMSSENDNOTSURE"});
+            }
+          }
           this.writeFetchMessage("Message Sent to "+ to +" ..." + this.state.LastSendState );
 
           if( this.state.LastSendState == "Success" ) {
-            await this.deleteMessage(loc, false);
+            await this.deleteMessage(loc, false, null);
+            this.setState({lastOutboundMsgLoc: "", lastOutboundMsgTry: 0});
           }
+          else {
+
+
+            //Number of retry reached, marked not sent and reset retry.
+            if ( this.state.lastOutboundMsgTry == this.state.smsRetry ) {
+              this.writeFetchMessage("Number of retry reached!");
+              //To Do: Make this marking as failure instead of ARD_SENT.
+              await this.deleteMessage(loc, false, this.ardErrorCode);
+              this.setState({lastOutboundMsgLoc: "", lastOutboundMsgTry: 0})
+            }
+            else {
+              this.setState({lastOutboundMsgLoc: this.state.Loc});
+            }
+
+          }
+
+
+
 
           this.clearOutboundState();
           this.setState({ Loc: "", LastSendState: "" });
+
+          this.serverAccessErrorTry = 0;
         }
+
+
+
+
         // End of Get Next OUTBOUND Message from SVCA server
 
         // Get Next SMS Message
@@ -585,11 +712,13 @@ export default class App extends Component<Props> {
         found = await this.getNextSMS();
 
         if (found ) {
+          date = new Date();
+          this.writeFetchMessage(date);
           this.writeFetchMessage("Found new SMS from "+this.state.ToInbound+".");
 
 
           this.saveSMSToSVCA();
-          await new Promise((resolve) => setTimeout(() => resolve(), 3000));
+          await new Promise((resolve) => setTimeout(() => resolve(), 4000));
           //await this.wait(4000, "Sending SMS Message to SVCA.");
           this.writeFetchMessage("SMS Message sent to SVCA ..."+this.state.MessageInboundStatus);
 
@@ -597,14 +726,35 @@ export default class App extends Component<Props> {
             //To Do: Delete or mark read the SMS. MessageInboundId
             this.deleteSMS(this.state.MessageInboundId);
             this.clearInboundState();
+            this.serverAccessErrorTry = 0;
           }
           else {
+            this.writeFetchMessage("Unable to send to server!");
+            this.serverAccessErrorTry = this.serverAccessErrorTry + 1;
 
             //Retry
           }
         }
         else {
           //this.writeFetchMessage("No new SMS: "+found);
+        }
+
+
+        if( this.serverAccessErrorTry > this.state.serverRetry && !this.state.adminTexted ) {
+          //Text Admin for help once
+          date = new Date();
+          this.writeFetchMessage(date);
+          this.writeFetchMessage("Sending SOS to Admin " + this.state.adminSMSNumber );
+          this.sendSMStoAdmin(date+" From SMS Messaging System: Unable to access server properly, please check!");
+          this.setState({adminTexted: true});
+        }
+
+        if( this.state.adminTexted && this.serverAccessErrorTry == 0 ) {
+          date = new Date();
+          this.writeFetchMessage(date);
+          this.writeFetchMessage("Sending A.OK to Admin " + this.state.adminSMSNumber );
+          this.sendSMStoAdmin(date+" From SMS Messaging System: Server now is accessable, you can relax now!");
+          this.setState({adminTexted: false});
         }
 
 
@@ -669,7 +819,7 @@ export default class App extends Component<Props> {
           >
             <Text style={{color:'#ffffff'}}> Get Next Outbound Message </Text>
           </TouchableOpacity>
-          <View style={[styles.messageContainer, {height:150}]}>
+          <View style={[styles.messageContainer, {height:250}]}>
           <ScrollView>
             <Text style={[styles.messageText]}>
               To : { this.state.SendTo !== "" ? this.state.SendTo: null}
@@ -702,7 +852,7 @@ export default class App extends Component<Props> {
           >
             <Text style={{color:'#ffffff'}}> Get Next SMS (Inbound) Message </Text>
           </TouchableOpacity>
-          <View style={[styles.messageContainer]}>
+          <View style={[styles.messageContainer, {height:250}]}>
             <ScrollView>
                <Text style={[styles.messageText]}>
                  From : { this.state.ToInbound !== "" ? this.state.ToInbound: null}
@@ -800,6 +950,7 @@ export default class App extends Component<Props> {
         </ScrollView>
         </View>
 
+        // Waiting window modal
         <Modal
           animationType="fade"
           transparent={true}
@@ -837,6 +988,8 @@ export default class App extends Component<Props> {
            </View>
         </Modal>
 
+
+        // Auto Fetch Modal window
         <Modal
           animationType="fade"
           transparent={true}
@@ -844,31 +997,20 @@ export default class App extends Component<Props> {
           onRequestClose={() => {}}
           >
           <View style={{
-          //flex: 1,
-          //flexDirection: 'column',
-          //justifyContent: 'center',
-          //alignItems: 'center',
           width: this.screenWidth - 10,
           height: this.screenHeight - 100 ,
           marginTop: 60,
           marginLeft: 5,
-          //marginRight: 5,
-          //marginBottom: 5,
           borderRadius: 8,
           borderWidth: 0.3,
           borderColor: '#a3a3a3',
           backgroundColor: "#cecece" }}>
 
             <View style={{
-              //flex:1,
               flexDirection: 'row',
               marginLeft: 5,
               marginTop: 5,
               marginRight: 5,
-              //justifyContent: 'left',
-              //height: 50,
-              //borderRadius: 8,
-              //backgroundColor: '#bcbcbc',
             }}>
 
 
@@ -897,9 +1039,6 @@ export default class App extends Component<Props> {
                borderWidth: 0.5,
                borderColor: "#bcbcbc",
                marginTop: 10,
-               //width: 250,
-               //height: 200,
-               //marginBottom: 50
              }}>
                <ScrollView ref={ ( ref ) => this.scrollView = ref }
                   onContentSizeChange={ () => {
@@ -914,13 +1053,10 @@ export default class App extends Component<Props> {
 
              </View>
              <View style={{
-               //flexDirection: 'row',
                marginLeft: 10,
                marginRight: 10,
                marginTop: 15,
-               //marginRight: 5,
                height: 40,
-               //backgroundColor: '#ebef7f'
              }}>
              <TouchableOpacity
               style={styles.button}
@@ -946,20 +1082,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#e5f9ed",
     alignItems: 'center'
   },
-  //header: {
-    //flex: 1,
-  //  height: 80,
-  //  alignItems: 'center',
-  //  backgroundColor: "#fc9c02",
-  //  borderWidth: 0.5
-  //},
   container: {
     flex: 1,
-    //justifyContent: 'center',
-    //alignItems: 'center',
-    //backgroundColor: '#F5FCFF',
-    //paddingHorizontal: 10,
-    //backgroundColor: "#fffa00"
   },
   welcome: {
     fontSize: 20,
@@ -996,12 +1120,10 @@ const styles = StyleSheet.create({
     color: '#FF00FF'
   },
   messageButtonContainer: {
-    //justifyContent: 'flex-start',
     flex: 1,
     justifyContent: 'space-between',
     marginLeft: 10,
     marginRight: 10,
-    //alignItems: 'stretch',
     flexDirection: 'row',
     backgroundColor: "#e5f9ed",
   },
@@ -1039,18 +1161,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#e6e6e6',
   },
   autoFetchView: {
-    //padding: 15,
-    //marginLeft: 20,
-    //marginRight: 20,
     marginTop: 60,
-    //marginBottom: 20,
     borderRadius: 6,
-    //width: this.state.width - 10,
-    //height: this.state.height - 70,
     borderColor: '#c8c8c8',
     backgroundColor: "#f4f4f4",
-    //flexDirection: "row",
-    //alignItems: "center"
   },
   waitingView: {
     padding: 15,
