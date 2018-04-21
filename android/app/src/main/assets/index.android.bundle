@@ -61566,319 +61566,14 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       };
 
       _this.onPress_AutoFetch = function () {
-        (function _callee7() {
-          var count;
-          return regeneratorRuntime.async(function _callee7$(_context7) {
-            while (1) {
-              switch (_context7.prev = _context7.next) {
-                case 0:
-                  _this.setState({
-                    autoFetchMessage: "Running Auto Fetch..."
-                  });
-
-                  _this.setState({
-                    visibleAutoFetch: true
-                  });
-
-                  _this.setState({
-                    FetchMessage: "Starting auto fetch ... "
-                  });
-
-                  _context7.next = 5;
-                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
-                    return setTimeout(function () {
-                      return resolve();
-                    }, 2000);
-                  }));
-
-                case 5:
-                  count = 1;
-
-                  _this.setState({
-                    lastOutboundMsgTry: 0
-                  });
-
-                  _this.setState({
-                    lastOutboundMsgLoc: ""
-                  });
-
-                  _this.setState({
-                    FetchStatus: "RUNNING"
-                  });
-
-                  _this.writeFetchMessage("Fetching every " + _this.state.Timer + " seconds...");
-
-                  _this.writeFetchMessage("Ready!");
-
-                case 11:
-                  if (!(_this.state.FetchStatus == "RUNNING")) {
-                    _context7.next = 89;
-                    break;
-                  }
-
-                  _context7.next = 14;
-                  return regeneratorRuntime.awrap(_this.pullSVCAMessage());
-
-                case 14:
-                  result = _context7.sent;
-
-                  if (!(result == 0)) {
-                    _context7.next = 18;
-                    break;
-                  }
-
-                  _context7.next = 67;
-                  break;
-
-                case 18:
-                  if (!(result == -1)) {
-                    _context7.next = 23;
-                    break;
-                  }
-
-                  _this.writeFetchMessage("Unable to access server!");
-
-                  _this.serverAccessErrorTry = _this.serverAccessErrorTry + 1;
-                  _context7.next = 67;
-                  break;
-
-                case 23:
-                  if (!(result != 1)) {
-                    _context7.next = 28;
-                    break;
-                  }
-
-                  _this.writeFetchMessage("Error accessing SVCA: " + result);
-
-                  _this.serverAccessErrorTry = _this.serverAccessErrorTry + 1;
-                  _context7.next = 67;
-                  break;
-
-                case 28:
-                  date = new Date();
-
-                  _this.writeFetchMessage(date);
-
-                  _this.writeFetchMessage("Outbound message to " + _this.state.SendTo + " found!");
-
-                  _this.setState({
-                    LastSendState: ""
-                  });
-
-                  to = _this.state.SendTo;
-                  loc = _this.state.Loc;
-
-                  if (_this.state.Loc == _this.state.lastOutboundMsgLoc) {
-                    retry = _this.state.lastOutboundMsgTry + 1;
-
-                    _this.setState({
-                      lastOutboundMsgTry: retry
-                    });
-
-                    _this.writeFetchMessage("Retry #" + _this.state.lastOutboundMsgTry + " ...");
-                  }
-
-                  _context7.next = 37;
-                  return regeneratorRuntime.awrap(_this.sendSMS());
-
-                case 37:
-                  result = _context7.sent;
-                  _context7.next = 40;
-                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
-                    return setTimeout(function () {
-                      return resolve();
-                    }, 5000);
-                  }));
-
-                case 40:
-                  if (!(_this.state.LastSendState == "")) {
-                    _context7.next = 49;
-                    break;
-                  }
-
-                  waiting_response = 0;
-
-                case 42:
-                  if (!(_this.state.LastSendState == "" && waiting_response < 3)) {
-                    _context7.next = 48;
-                    break;
-                  }
-
-                  _context7.next = 45;
-                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
-                    return setTimeout(function () {
-                      return resolve();
-                    }, 5000);
-                  }));
-
-                case 45:
-                  waiting_response = waiting_response + 1;
-                  _context7.next = 42;
-                  break;
-
-                case 48:
-                  if (_this.state.LastSendState == "") {
-                    _this.setState({
-                      LastSendState: "SMSSENDNOTSURE"
-                    });
-                  }
-
-                case 49:
-                  _this.writeFetchMessage("Message Sent to " + to + " ..." + _this.state.LastSendState);
-
-                  if (!(_this.state.LastSendState == "Success")) {
-                    _context7.next = 56;
-                    break;
-                  }
-
-                  _context7.next = 53;
-                  return regeneratorRuntime.awrap(_this.deleteMessage(loc, false, null));
-
-                case 53:
-                  _this.setState({
-                    lastOutboundMsgLoc: "",
-                    lastOutboundMsgTry: 0
-                  });
-
-                  _context7.next = 64;
-                  break;
-
-                case 56:
-                  if (!(_this.state.lastOutboundMsgTry == _this.state.smsRetry)) {
-                    _context7.next = 63;
-                    break;
-                  }
-
-                  _this.writeFetchMessage("Number of retry reached!");
-
-                  _context7.next = 60;
-                  return regeneratorRuntime.awrap(_this.deleteMessage(loc, false, _this.ardErrorCode));
-
-                case 60:
-                  _this.setState({
-                    lastOutboundMsgLoc: "",
-                    lastOutboundMsgTry: 0
-                  });
-
-                  _context7.next = 64;
-                  break;
-
-                case 63:
-                  _this.setState({
-                    lastOutboundMsgLoc: _this.state.Loc
-                  });
-
-                case 64:
-                  _this.clearOutboundState();
-
-                  _this.setState({
-                    Loc: "",
-                    LastSendState: ""
-                  });
-
-                  _this.serverAccessErrorTry = 0;
-
-                case 67:
-                  _context7.next = 69;
-                  return regeneratorRuntime.awrap(_this.getNextSMS());
-
-                case 69:
-                  found = _context7.sent;
-
-                  if (!found) {
-                    _context7.next = 81;
-                    break;
-                  }
-
-                  date = new Date();
-
-                  _this.writeFetchMessage(date);
-
-                  _this.writeFetchMessage("Found new SMS from " + _this.state.ToInbound + ".");
-
-                  _this.saveSMSToSVCA();
-
-                  _context7.next = 77;
-                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
-                    return setTimeout(function () {
-                      return resolve();
-                    }, 4000);
-                  }));
-
-                case 77:
-                  _this.writeFetchMessage("SMS Message sent to SVCA ..." + _this.state.MessageInboundStatus);
-
-                  if (_this.state.MessageInboundStatus == "Success") {
-                    _this.deleteSMS(_this.state.MessageInboundId);
-
-                    _this.clearInboundState();
-
-                    _this.serverAccessErrorTry = 0;
-                  } else {
-                    _this.writeFetchMessage("Unable to send to server!");
-
-                    _this.serverAccessErrorTry = _this.serverAccessErrorTry + 1;
-                  }
-
-                  _context7.next = 81;
-                  break;
-
-                case 81:
-                  if (_this.serverAccessErrorTry > _this.state.serverRetry && !_this.state.adminTexted) {
-                    date = new Date();
-
-                    _this.writeFetchMessage(date);
-
-                    _this.writeFetchMessage("Sending SOS to Admin " + _this.state.adminSMSNumber);
-
-                    _this.sendSMStoAdmin(date + " From SMS Messaging System: Unable to access server properly, please check!");
-
-                    _this.setState({
-                      adminTexted: true
-                    });
-                  }
-
-                  if (_this.state.adminTexted && _this.serverAccessErrorTry == 0) {
-                    date = new Date();
-
-                    _this.writeFetchMessage(date);
-
-                    _this.writeFetchMessage("Sending A.OK to Admin " + _this.state.adminSMSNumber);
-
-                    _this.sendSMStoAdmin(date + " From SMS Messaging System: Server now is accessable, you can relax now!");
-
-                    _this.setState({
-                      adminTexted: false
-                    });
-                  }
-
-                  timer = parseFloat(_this.state.Timer) * 1000;
-                  _context7.next = 86;
-                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
-                    return setTimeout(function () {
-                      return resolve();
-                    }, timer);
-                  }));
-
-                case 86:
-                  count = count + 1;
-                  _context7.next = 11;
-                  break;
-
-                case 89:
-                case "end":
-                  return _context7.stop();
-              }
-            }
-          }, null, _this2);
-        })();
+        _this.runAutoFetch();
       };
 
       _this.onPress_StopAutoFetch = function () {
-        (function _callee8() {
-          return regeneratorRuntime.async(function _callee8$(_context8) {
+        (function _callee7() {
+          return regeneratorRuntime.async(function _callee7$(_context7) {
             while (1) {
-              switch (_context8.prev = _context8.next) {
+              switch (_context7.prev = _context7.next) {
                 case 0:
                   _this.setState({
                     autoFetchMessage: "Stopping Auto Fetch..."
@@ -61890,7 +61585,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     FetchStatus: "STOP"
                   });
 
-                  _context8.next = 5;
+                  _context7.next = 5;
                   return regeneratorRuntime.awrap(new Promise(function (resolve) {
                     return setTimeout(function () {
                       return resolve();
@@ -61904,7 +61599,45 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
                 case 6:
                 case "end":
+                  return _context7.stop();
+              }
+            }
+          }, null, _this2);
+        })();
+      };
+
+      _this.onPress_Settings = function () {
+        (function _callee8() {
+          return regeneratorRuntime.async(function _callee8$(_context8) {
+            while (1) {
+              switch (_context8.prev = _context8.next) {
+                case 0:
+                  _this.setState({
+                    visibleSettings: true
+                  });
+
+                case 1:
+                case "end":
                   return _context8.stop();
+              }
+            }
+          }, null, _this2);
+        })();
+      };
+
+      _this.onPress_SaveSettings = function () {
+        (function _callee9() {
+          return regeneratorRuntime.async(function _callee9$(_context9) {
+            while (1) {
+              switch (_context9.prev = _context9.next) {
+                case 0:
+                  _this.setState({
+                    visibleSettings: false
+                  });
+
+                case 1:
+                case "end":
+                  return _context9.stop();
               }
             }
           }, null, _this2);
@@ -61928,6 +61661,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         LastDeleteStatus: "",
         visibleWait: false,
         visibleAutoFetch: false,
+        visibleSettings: false,
         autoFetchMessage: "Running Auto Fetch...",
         FetchMessage: "",
         FetchStatus: "STOP",
@@ -61943,8 +61677,9 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         adminSendError: true,
         adminSMSNumber: "5108670000",
         adminTexted: false,
-        smsRetry: 5,
-        serverRetry: 10
+        smsRetry: "5",
+        serverRetry: "10",
+        startAutoFetchOnMount: true
       };
       _this.screenWidth = _reactNative.Dimensions.get('window').width, _this.screenHeight = _reactNative.Dimensions.get('window').height, _this.retry = 5, _this.ardErrorCode = "^", _this.serverAccessErrorTry = 0, _this.serverAccessThreasholdGetHelp = 10, _this.listSMS();
       _this.phoneNumber = _reactNativeDeviceInfo2.default.getPhoneNumber();
@@ -61953,19 +61688,28 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
     _createClass(App, [{
       key: "componentDidMount",
-      value: function componentDidMount() {}
+      value: function componentDidMount() {
+        if (this.state.startAutoFetchOnMount) {
+          this.runAutoFetch();
+        }
+      }
+    }, {
+      key: "removeControlCharacter",
+      value: function removeControlCharacter(str) {
+        return str.replace(/[\x00-\x1F\x7F-\x9F\x60]/g, " ");
+      }
     }, {
       key: "wait",
       value: function wait(ms, message) {
-        return regeneratorRuntime.async(function wait$(_context9) {
+        return regeneratorRuntime.async(function wait$(_context10) {
           while (1) {
-            switch (_context9.prev = _context9.next) {
+            switch (_context10.prev = _context10.next) {
               case 0:
                 this.setState({
                   visibleWait: true,
                   subTextWait: message
                 });
-                _context9.next = 3;
+                _context10.next = 3;
                 return regeneratorRuntime.awrap(new Promise(function (resolve) {
                   return setTimeout(function () {
                     return resolve();
@@ -61980,7 +61724,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
               case 4:
               case "end":
-                return _context9.stop();
+                return _context10.stop();
             }
           }
         }, null, this);
@@ -62008,13 +61752,13 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       value: function sendSMS() {
         var _this4 = this;
 
-        return regeneratorRuntime.async(function sendSMS$(_context10) {
+        return regeneratorRuntime.async(function sendSMS$(_context11) {
           while (1) {
-            switch (_context10.prev = _context10.next) {
+            switch (_context11.prev = _context11.next) {
               case 0:
                 result = 0;
-                _context10.next = 3;
-                return regeneratorRuntime.awrap(_reactNativeGetSmsAndroid2.default.autoSend(this.state.SendTo, this.state.Message, function (err) {
+                _context11.next = 3;
+                return regeneratorRuntime.awrap(_reactNativeGetSmsAndroid2.default.autoSend(this.state.SendTo, this.removeControlCharacter(this.state.Message), function (err) {
                   result = err;
 
                   _this4.setState({
@@ -62029,11 +61773,11 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 }));
 
               case 3:
-                return _context10.abrupt("return", result);
+                return _context11.abrupt("return", result);
 
               case 4:
               case "end":
-                return _context10.stop();
+                return _context11.stop();
             }
           }
         }, null, this);
@@ -62041,19 +61785,19 @@ __d(function (global, _require, module, exports, _dependencyMap) {
     }, {
       key: "sendSMStoAdmin",
       value: function sendSMStoAdmin(message) {
-        return regeneratorRuntime.async(function sendSMStoAdmin$(_context11) {
+        return regeneratorRuntime.async(function sendSMStoAdmin$(_context12) {
           while (1) {
-            switch (_context11.prev = _context11.next) {
+            switch (_context12.prev = _context12.next) {
               case 0:
                 result = 0;
 
                 if (!(this.state.adminSendError && this.state.adminSMSNumber != "")) {
-                  _context11.next = 5;
+                  _context12.next = 5;
                   break;
                 }
 
                 this.writeFetchMessage("Sending to admin...");
-                _context11.next = 5;
+                _context12.next = 5;
                 return regeneratorRuntime.awrap(_reactNativeGetSmsAndroid2.default.autoSend(this.state.adminSMSNumber, message, function (err) {
                   result = err;
                 }, function (success) {
@@ -62061,11 +61805,11 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 }));
 
               case 5:
-                return _context11.abrupt("return", result);
+                return _context12.abrupt("return", result);
 
               case 6:
               case "end":
-                return _context11.stop();
+                return _context12.stop();
             }
           }
         }, null, this);
@@ -62075,11 +61819,11 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       value: function deleteSMS(id) {
         var _this5 = this;
 
-        return regeneratorRuntime.async(function deleteSMS$(_context12) {
+        return regeneratorRuntime.async(function deleteSMS$(_context13) {
           while (1) {
-            switch (_context12.prev = _context12.next) {
+            switch (_context13.prev = _context13.next) {
               case 0:
-                _context12.next = 2;
+                _context13.next = 2;
                 return regeneratorRuntime.awrap(_reactNativeGetSmsAndroid2.default.delete(id, function (err) {
                   _this5.setState({
                     LastDeleteSMSState: err
@@ -62092,7 +61836,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
               case 2:
               case "end":
-                return _context12.stop();
+                return _context13.stop();
             }
           }
         }, null, this);
@@ -62102,12 +61846,12 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       value: function pullSVCAMessage() {
         var _this6 = this;
 
-        return regeneratorRuntime.async(function pullSVCAMessage$(_context13) {
+        return regeneratorRuntime.async(function pullSVCAMessage$(_context14) {
           while (1) {
-            switch (_context13.prev = _context13.next) {
+            switch (_context14.prev = _context14.next) {
               case 0:
                 result = 0;
-                _context13.next = 3;
+                _context14.next = 3;
                 return regeneratorRuntime.awrap(fetch('http://www.svcausa.com/smsgprs/smsread.php').then(function (resp) {
                   return resp.text();
                 }).then(function (text) {
@@ -62138,11 +61882,11 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 }));
 
               case 3:
-                return _context13.abrupt("return", result);
+                return _context14.abrupt("return", result);
 
               case 4:
               case "end":
-                return _context13.stop();
+                return _context14.stop();
             }
           }
         }, null, this);
@@ -62171,14 +61915,14 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       key: "getNextSMS",
       value: function getNextSMS() {
         var found, i;
-        return regeneratorRuntime.async(function getNextSMS$(_context14) {
+        return regeneratorRuntime.async(function getNextSMS$(_context15) {
           while (1) {
-            switch (_context14.prev = _context14.next) {
+            switch (_context15.prev = _context15.next) {
               case 0:
                 found = false;
 
                 if (!(this.state.smsList.length > 0)) {
-                  _context14.next = 22;
+                  _context15.next = 22;
                   break;
                 }
 
@@ -62186,14 +61930,14 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
               case 3:
                 if (!(i < this.state.smsList.length)) {
-                  _context14.next = 16;
+                  _context15.next = 16;
                   break;
                 }
 
                 object = this.state.smsList[i];
 
                 if (!(object.read == 0)) {
-                  _context14.next = 13;
+                  _context15.next = 13;
                   break;
                 }
 
@@ -62210,39 +61954,39 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 });
                 object.read = 1;
                 found = true;
-                return _context14.abrupt("break", 16);
+                return _context15.abrupt("break", 16);
 
               case 13:
                 i++;
-                _context14.next = 3;
+                _context15.next = 3;
                 break;
 
               case 16:
                 if (!(found == false)) {
-                  _context14.next = 20;
+                  _context15.next = 20;
                   break;
                 }
 
-                _context14.next = 19;
+                _context15.next = 19;
                 return regeneratorRuntime.awrap(this.listSMS());
 
               case 19:
                 this.clearInboundState();
 
               case 20:
-                _context14.next = 24;
+                _context15.next = 24;
                 break;
 
               case 22:
-                _context14.next = 24;
+                _context15.next = 24;
                 return regeneratorRuntime.awrap(this.listSMS());
 
               case 24:
-                return _context14.abrupt("return", found);
+                return _context15.abrupt("return", found);
 
               case 25:
               case "end":
-                return _context14.stop();
+                return _context15.stop();
             }
           }
         }, null, this);
@@ -62252,11 +61996,11 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       value: function saveSMSToSVCA() {
         var _this7 = this;
 
-        return regeneratorRuntime.async(function saveSMSToSVCA$(_context15) {
+        return regeneratorRuntime.async(function saveSMSToSVCA$(_context16) {
           while (1) {
-            switch (_context15.prev = _context15.next) {
+            switch (_context16.prev = _context16.next) {
               case 0:
-                _context15.next = 2;
+                _context16.next = 2;
                 return regeneratorRuntime.awrap(fetch(this.state.MessageSendURI).then(function (resp) {
                   return resp.text();
                 }).then(function (text) {
@@ -62280,7 +62024,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
               case 2:
               case "end":
-                return _context15.stop();
+                return _context16.stop();
             }
           }
         }, null, this);
@@ -62289,9 +62033,9 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       key: "deleteMessage",
       value: function deleteMessage(location, permanent, param) {
         var permanent_code, mark, response;
-        return regeneratorRuntime.async(function deleteMessage$(_context16) {
+        return regeneratorRuntime.async(function deleteMessage$(_context17) {
           while (1) {
-            switch (_context16.prev = _context16.next) {
+            switch (_context17.prev = _context17.next) {
               case 0:
                 permanent_code = "";
                 mark = "SENT";
@@ -62306,35 +62050,35 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 }
 
                 uri = "http://www.svcausa.com/smsgprs/smsdelete.php?loc=" + location + permanent_code;
-                _context16.prev = 5;
-                _context16.next = 8;
+                _context17.prev = 5;
+                _context17.next = 8;
                 return regeneratorRuntime.awrap(fetch(uri));
 
               case 8:
-                response = _context16.sent;
+                response = _context17.sent;
 
                 if (!(response.status > 400)) {
-                  _context16.next = 13;
+                  _context17.next = 13;
                   break;
                 }
 
                 this.setState({
                   LastDeleteStatus: "Communication error!"
                 });
-                _context16.next = 20;
+                _context17.next = 20;
                 break;
 
               case 13:
-                _context16.next = 15;
+                _context17.next = 15;
                 return regeneratorRuntime.awrap(response.text());
 
               case 15:
-                text = _context16.sent;
-                _context16.next = 18;
+                text = _context17.sent;
+                _context17.next = 18;
                 return regeneratorRuntime.awrap(text.substring(text.lastIndexOf("#RESULT:") + 9, text.lastIndexOf(" ~")));
 
               case 18:
-                result = _context16.sent;
+                result = _context17.sent;
 
                 if (result == 'OK') {
                   this.setState({
@@ -62347,19 +62091,19 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 }
 
               case 20:
-                _context16.next = 25;
+                _context17.next = 25;
                 break;
 
               case 22:
-                _context16.prev = 22;
-                _context16.t0 = _context16["catch"](5);
+                _context17.prev = 22;
+                _context17.t0 = _context17["catch"](5);
                 this.setState({
-                  LastDeleteStatus: _context16.t0
+                  LastDeleteStatus: _context17.t0
                 });
 
               case 25:
               case "end":
-                return _context16.stop();
+                return _context17.stop();
             }
           }
         }, null, this, [[5, 22]]);
@@ -62367,12 +62111,12 @@ __d(function (global, _require, module, exports, _dependencyMap) {
     }, {
       key: "sleep",
       value: function sleep(interval) {
-        return regeneratorRuntime.async(function sleep$(_context17) {
+        return regeneratorRuntime.async(function sleep$(_context18) {
           while (1) {
-            switch (_context17.prev = _context17.next) {
+            switch (_context18.prev = _context18.next) {
               case 0:
                 timer = interval * 1000;
-                _context17.next = 3;
+                _context18.next = 3;
                 return regeneratorRuntime.awrap(new Promise(function (resolve) {
                   return setTimeout(function () {
                     return resolve();
@@ -62381,7 +62125,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
 
               case 3:
               case "end":
-                return _context17.stop();
+                return _context18.stop();
             }
           }
         }, null, this);
@@ -62395,25 +62139,345 @@ __d(function (global, _require, module, exports, _dependencyMap) {
         });
       }
     }, {
-      key: "render",
-      value: function render() {
+      key: "runAutoFetch",
+      value: function runAutoFetch() {
         var _this8 = this;
 
-        var DeleteArdIn = this.state.DeleteArdIn;
+        (function _callee10() {
+          var count;
+          return regeneratorRuntime.async(function _callee10$(_context19) {
+            while (1) {
+              switch (_context19.prev = _context19.next) {
+                case 0:
+                  _this8.setState({
+                    autoFetchMessage: "Running Auto Fetch..."
+                  });
+
+                  _this8.setState({
+                    visibleAutoFetch: true
+                  });
+
+                  _this8.setState({
+                    FetchMessage: "Starting auto fetch ... "
+                  });
+
+                  _context19.next = 5;
+                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
+                    return setTimeout(function () {
+                      return resolve();
+                    }, 2000);
+                  }));
+
+                case 5:
+                  count = 1;
+
+                  _this8.setState({
+                    lastOutboundMsgTry: 0
+                  });
+
+                  _this8.setState({
+                    lastOutboundMsgLoc: ""
+                  });
+
+                  _this8.setState({
+                    FetchStatus: "RUNNING"
+                  });
+
+                  _this8.writeFetchMessage("Fetching every " + _this8.state.Timer + " seconds...");
+
+                  _this8.writeFetchMessage("Ready!");
+
+                case 11:
+                  if (!(_this8.state.FetchStatus == "RUNNING")) {
+                    _context19.next = 90;
+                    break;
+                  }
+
+                  _context19.next = 14;
+                  return regeneratorRuntime.awrap(_this8.pullSVCAMessage());
+
+                case 14:
+                  result = _context19.sent;
+
+                  if (!(result == 0)) {
+                    _context19.next = 19;
+                    break;
+                  }
+
+                  _this8.serverAccessErrorTry = 0;
+                  _context19.next = 68;
+                  break;
+
+                case 19:
+                  if (!(result == -1)) {
+                    _context19.next = 24;
+                    break;
+                  }
+
+                  _this8.writeFetchMessage("Unable to access server!");
+
+                  _this8.serverAccessErrorTry = _this8.serverAccessErrorTry + 1;
+                  _context19.next = 68;
+                  break;
+
+                case 24:
+                  if (!(result != 1)) {
+                    _context19.next = 29;
+                    break;
+                  }
+
+                  _this8.writeFetchMessage("Error accessing SVCA: " + result);
+
+                  _this8.serverAccessErrorTry = _this8.serverAccessErrorTry + 1;
+                  _context19.next = 68;
+                  break;
+
+                case 29:
+                  date = new Date();
+
+                  _this8.writeFetchMessage(date);
+
+                  _this8.writeFetchMessage("Outbound message to " + _this8.state.SendTo + " found!");
+
+                  _this8.setState({
+                    LastSendState: ""
+                  });
+
+                  to = _this8.state.SendTo;
+                  loc = _this8.state.Loc;
+
+                  if (_this8.state.Loc == _this8.state.lastOutboundMsgLoc) {
+                    retry = _this8.state.lastOutboundMsgTry + 1;
+
+                    _this8.setState({
+                      lastOutboundMsgTry: retry
+                    });
+
+                    _this8.writeFetchMessage("Retry #" + _this8.state.lastOutboundMsgTry + " ...");
+                  }
+
+                  _context19.next = 38;
+                  return regeneratorRuntime.awrap(_this8.sendSMS());
+
+                case 38:
+                  result = _context19.sent;
+                  _context19.next = 41;
+                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
+                    return setTimeout(function () {
+                      return resolve();
+                    }, 5000);
+                  }));
+
+                case 41:
+                  if (!(_this8.state.LastSendState == "")) {
+                    _context19.next = 50;
+                    break;
+                  }
+
+                  waiting_response = 0;
+
+                case 43:
+                  if (!(_this8.state.LastSendState == "" && waiting_response < 3)) {
+                    _context19.next = 49;
+                    break;
+                  }
+
+                  _context19.next = 46;
+                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
+                    return setTimeout(function () {
+                      return resolve();
+                    }, 5000);
+                  }));
+
+                case 46:
+                  waiting_response = waiting_response + 1;
+                  _context19.next = 43;
+                  break;
+
+                case 49:
+                  if (_this8.state.LastSendState == "") {
+                    _this8.setState({
+                      LastSendState: "SMSSENDNOTSURE"
+                    });
+                  }
+
+                case 50:
+                  _this8.writeFetchMessage("Message Sent to " + to + " ..." + _this8.state.LastSendState);
+
+                  if (!(_this8.state.LastSendState == "Success")) {
+                    _context19.next = 57;
+                    break;
+                  }
+
+                  _context19.next = 54;
+                  return regeneratorRuntime.awrap(_this8.deleteMessage(loc, false, null));
+
+                case 54:
+                  _this8.setState({
+                    lastOutboundMsgLoc: "",
+                    lastOutboundMsgTry: 0
+                  });
+
+                  _context19.next = 65;
+                  break;
+
+                case 57:
+                  if (!(_this8.state.lastOutboundMsgTry == Number(_this8.state.smsRetry))) {
+                    _context19.next = 64;
+                    break;
+                  }
+
+                  _this8.writeFetchMessage("Number of retry reached!");
+
+                  _context19.next = 61;
+                  return regeneratorRuntime.awrap(_this8.deleteMessage(loc, false, _this8.ardErrorCode));
+
+                case 61:
+                  _this8.setState({
+                    lastOutboundMsgLoc: "",
+                    lastOutboundMsgTry: 0
+                  });
+
+                  _context19.next = 65;
+                  break;
+
+                case 64:
+                  _this8.setState({
+                    lastOutboundMsgLoc: _this8.state.Loc
+                  });
+
+                case 65:
+                  _this8.clearOutboundState();
+
+                  _this8.setState({
+                    Loc: "",
+                    LastSendState: ""
+                  });
+
+                  _this8.serverAccessErrorTry = 0;
+
+                case 68:
+                  _context19.next = 70;
+                  return regeneratorRuntime.awrap(_this8.getNextSMS());
+
+                case 70:
+                  found = _context19.sent;
+
+                  if (!found) {
+                    _context19.next = 82;
+                    break;
+                  }
+
+                  date = new Date();
+
+                  _this8.writeFetchMessage(date);
+
+                  _this8.writeFetchMessage("Found new SMS from " + _this8.state.ToInbound + ".");
+
+                  _this8.saveSMSToSVCA();
+
+                  _context19.next = 78;
+                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
+                    return setTimeout(function () {
+                      return resolve();
+                    }, 4000);
+                  }));
+
+                case 78:
+                  _this8.writeFetchMessage("SMS Message sent to SVCA ..." + _this8.state.MessageInboundStatus);
+
+                  if (_this8.state.MessageInboundStatus == "Success") {
+                    _this8.deleteSMS(_this8.state.MessageInboundId);
+
+                    _this8.clearInboundState();
+
+                    _this8.serverAccessErrorTry = 0;
+                  } else {
+                    _this8.writeFetchMessage("Unable to send to server!");
+
+                    _this8.serverAccessErrorTry = _this8.serverAccessErrorTry + 1;
+                  }
+
+                  _context19.next = 82;
+                  break;
+
+                case 82:
+                  if (_this8.serverAccessErrorTry > Number(_this8.state.serverRetry) && !_this8.state.adminTexted) {
+                    date = new Date();
+
+                    _this8.writeFetchMessage(date);
+
+                    _this8.writeFetchMessage("Sending SOS to Admin " + _this8.state.adminSMSNumber);
+
+                    _this8.sendSMStoAdmin(date + " From SMS Messaging System: Unable to access server properly, please check!");
+
+                    _this8.setState({
+                      adminTexted: true
+                    });
+                  }
+
+                  if (_this8.state.adminTexted && _this8.serverAccessErrorTry == 0) {
+                    date = new Date();
+
+                    _this8.writeFetchMessage(date);
+
+                    _this8.writeFetchMessage("Sending A.OK to Admin " + _this8.state.adminSMSNumber);
+
+                    _this8.sendSMStoAdmin(date + " From SMS Messaging System: Server now is accessable, you can relax now!");
+
+                    _this8.setState({
+                      adminTexted: false
+                    });
+                  }
+
+                  timer = parseFloat(_this8.state.Timer) * 1000;
+                  _context19.next = 87;
+                  return regeneratorRuntime.awrap(new Promise(function (resolve) {
+                    return setTimeout(function () {
+                      return resolve();
+                    }, timer);
+                  }));
+
+                case 87:
+                  count = count + 1;
+                  _context19.next = 11;
+                  break;
+
+                case 90:
+                case "end":
+                  return _context19.stop();
+              }
+            }
+          }, null, _this8);
+        })();
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var _this9 = this;
+
+        var _state = this.state,
+            DeleteArdIn = _state.DeleteArdIn,
+            adminSendError = _state.adminSendError,
+            adminSMSNumber = _state.adminSMSNumber,
+            serverRetry = _state.serverRetry,
+            smsRetry = _state.smsRetry;
         return _react3.default.createElement(
           _reactNative.View,
           {
             style: styles.container,
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 788
+              lineNumber: 837
             }
           },
           _react3.default.createElement(_reactNativeElements.Header, {
             backgroundColor: "#0a3a1d",
             leftComponent: {
               icon: 'settings',
-              color: '#fff'
+              color: '#fff',
+              onPress: this.onPress_Settings,
+              underlayColor: '#0a3a1d'
             },
             centerComponent: {
               text: 'VPL, Inc. SMS Messaging',
@@ -62425,14 +62489,16 @@ __d(function (global, _require, module, exports, _dependencyMap) {
             },
             rightComponent: {
               icon: 'visibility',
-              color: '#fff'
+              color: '#fff',
+              onPress: this.onPress_AutoFetch,
+              underlayColor: '#0a3a1d'
             },
             outerContainerStyles: {
               height: 50
             },
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 789
+              lineNumber: 838
             }
           }),
           _react3.default.createElement(
@@ -62441,7 +62507,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               style: styles.container_main,
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 807
+                lineNumber: 863
               }
             },
             _react3.default.createElement(
@@ -62449,7 +62515,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 808
+                  lineNumber: 864
                 }
               },
               _react3.default.createElement(
@@ -62458,7 +62524,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.itemView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 809
+                    lineNumber: 865
                   }
                 },
                 _react3.default.createElement(
@@ -62468,7 +62534,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     onPress: this.onPress_GetNextOutboundMessage,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 810
+                      lineNumber: 866
                     }
                   },
                   _react3.default.createElement(
@@ -62479,7 +62545,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 814
+                        lineNumber: 870
                       }
                     },
                     " Get Next Outbound Message "
@@ -62493,7 +62559,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     }],
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 816
+                      lineNumber: 872
                     }
                   },
                   _react3.default.createElement(
@@ -62501,7 +62567,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     {
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 817
+                        lineNumber: 873
                       }
                     },
                     _react3.default.createElement(
@@ -62510,7 +62576,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         style: [styles.messageText],
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 818
+                          lineNumber: 874
                         }
                       },
                       "To : ",
@@ -62535,7 +62601,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 830
+                      lineNumber: 886
                     }
                   },
                   _react3.default.createElement(
@@ -62545,7 +62611,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       onPress: this.onPress_sendSMS,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 831
+                        lineNumber: 887
                       }
                     },
                     _react3.default.createElement(
@@ -62556,7 +62622,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 835
+                          lineNumber: 891
                         }
                       },
                       " Send SMS "
@@ -62570,7 +62636,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.itemView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 841
+                    lineNumber: 897
                   }
                 },
                 _react3.default.createElement(
@@ -62580,7 +62646,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     onPress: this.onPress_GetNextSMSInboundMessages,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 842
+                      lineNumber: 898
                     }
                   },
                   _react3.default.createElement(
@@ -62591,7 +62657,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 847
+                        lineNumber: 903
                       }
                     },
                     " Get Next SMS (Inbound) Message "
@@ -62605,7 +62671,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     }],
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 849
+                      lineNumber: 905
                     }
                   },
                   _react3.default.createElement(
@@ -62613,7 +62679,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     {
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 850
+                        lineNumber: 906
                       }
                     },
                     _react3.default.createElement(
@@ -62622,7 +62688,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         style: [styles.messageText],
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 851
+                          lineNumber: 907
                         }
                       },
                       "From : ",
@@ -62651,7 +62717,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 867
+                      lineNumber: 923
                     }
                   },
                   _react3.default.createElement(
@@ -62661,7 +62727,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       onPress: this.onPress_SendToSvca,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 868
+                        lineNumber: 924
                       }
                     },
                     _react3.default.createElement(
@@ -62672,7 +62738,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 872
+                          lineNumber: 928
                         }
                       },
                       " Send SMS to SVCA "
@@ -62682,7 +62748,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 874
+                      lineNumber: 930
                     }
                   })
                 )
@@ -62693,7 +62759,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.itemView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 881
+                    lineNumber: 937
                   }
                 },
                 _react3.default.createElement(
@@ -62705,7 +62771,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     },
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 882
+                      lineNumber: 938
                     }
                   },
                   _react3.default.createElement(
@@ -62713,7 +62779,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     {
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 883
+                        lineNumber: 939
                       }
                     },
                     " Delete message "
@@ -62724,13 +62790,13 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 885
+                      lineNumber: 941
                     }
                   },
                   _react3.default.createElement(_reactNative.TextInput, {
                     style: styles.inputBox,
                     onChangeText: function onChangeText(text) {
-                      return _this8.setState({
+                      return _this9.setState({
                         DeleteArdIn: text
                       });
                     },
@@ -62744,7 +62810,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     underlineColorAndroid: 'transparent',
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 886
+                      lineNumber: 942
                     }
                   })
                 ),
@@ -62754,7 +62820,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 902
+                      lineNumber: 958
                     }
                   },
                   _react3.default.createElement(
@@ -62764,7 +62830,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       onPress: this.onPress_DeleteMessageFromSVCA,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 903
+                        lineNumber: 959
                       }
                     },
                     _react3.default.createElement(
@@ -62775,7 +62841,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 907
+                          lineNumber: 963
                         }
                       },
                       " Delete Message from SVCA Server "
@@ -62789,7 +62855,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.itemView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 913
+                    lineNumber: 969
                   }
                 },
                 _react3.default.createElement(
@@ -62801,7 +62867,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     },
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 914
+                      lineNumber: 970
                     }
                   },
                   _react3.default.createElement(
@@ -62809,7 +62875,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     {
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 915
+                        lineNumber: 971
                       }
                     },
                     " Run Auto Fetch "
@@ -62821,7 +62887,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.pickerBox,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 917
+                      lineNumber: 973
                     }
                   },
                   _react3.default.createElement(
@@ -62833,7 +62899,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 918
+                        lineNumber: 974
                       }
                     },
                     _react3.default.createElement(
@@ -62841,7 +62907,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       {
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 919
+                          lineNumber: 975
                         }
                       },
                       " Select fetch interval "
@@ -62855,7 +62921,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 921
+                        lineNumber: 977
                       }
                     },
                     _react3.default.createElement(
@@ -62867,13 +62933,13 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                           width: 130
                         },
                         onValueChange: function onValueChange(itemValue, itemIndex) {
-                          return _this8.setState({
+                          return _this9.setState({
                             Timer: itemValue
                           });
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 922
+                          lineNumber: 978
                         }
                       },
                       _react3.default.createElement(_reactNative.Picker.Item, {
@@ -62881,7 +62947,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         value: "3",
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 926
+                          lineNumber: 982
                         }
                       }),
                       _react3.default.createElement(_reactNative.Picker.Item, {
@@ -62889,7 +62955,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         value: "10",
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 927
+                          lineNumber: 983
                         }
                       }),
                       _react3.default.createElement(_reactNative.Picker.Item, {
@@ -62897,7 +62963,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         value: "30",
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 928
+                          lineNumber: 984
                         }
                       }),
                       _react3.default.createElement(_reactNative.Picker.Item, {
@@ -62905,7 +62971,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         value: "60",
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 929
+                          lineNumber: 985
                         }
                       })
                     )
@@ -62917,7 +62983,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     style: styles.messageButtonContainer,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 933
+                      lineNumber: 989
                     }
                   },
                   _react3.default.createElement(
@@ -62927,7 +62993,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       onPress: this.onPress_AutoFetch,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 934
+                        lineNumber: 990
                       }
                     },
                     _react3.default.createElement(
@@ -62938,7 +63004,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                         },
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 938
+                          lineNumber: 994
                         }
                       },
                       " Run "
@@ -62957,7 +63023,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               onRequestClose: function onRequestClose() {},
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 947
+                lineNumber: 1004
               }
             },
             _react3.default.createElement(
@@ -62971,7 +63037,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 },
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 953
+                  lineNumber: 1010
                 }
               },
               _react3.default.createElement(
@@ -62980,7 +63046,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   style: styles.waitingView,
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 958
+                    lineNumber: 1015
                   }
                 },
                 _react3.default.createElement(_reactNative.ActivityIndicator, {
@@ -62988,7 +63054,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   color: "#098",
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 959
+                    lineNumber: 1016
                   }
                 }),
                 _react3.default.createElement(
@@ -62996,7 +63062,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 963
+                      lineNumber: 1020
                     }
                   },
                   _react3.default.createElement(
@@ -63008,7 +63074,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       }],
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 964
+                        lineNumber: 1021
                       }
                     },
                     this.state.textWait ? this.state.textWait : "Waiting..."
@@ -63022,7 +63088,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       numberOfLines: 1,
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 970
+                        lineNumber: 1027
                       }
                     },
                     this.state.subTextWait
@@ -63040,7 +63106,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
               onRequestClose: function onRequestClose() {},
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 984
+                lineNumber: 1043
               }
             },
             _react3.default.createElement(
@@ -63058,7 +63124,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                 },
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 990
+                  lineNumber: 1049
                 }
               },
               _react3.default.createElement(
@@ -63072,7 +63138,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   },
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 1006
+                    lineNumber: 1059
                   }
                 },
                 _react3.default.createElement(_reactNative.ActivityIndicator, {
@@ -63080,7 +63146,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   color: "#098",
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 1019
+                    lineNumber: 1067
                   }
                 }),
                 _react3.default.createElement(
@@ -63092,7 +63158,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     }],
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 1025
+                      lineNumber: 1073
                     }
                   },
                   this.state.textWait ? this.state.textWait : this.state.autoFetchMessage
@@ -63114,23 +63180,23 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   },
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 1034
+                    lineNumber: 1082
                   }
                 },
                 _react3.default.createElement(
                   _reactNative.ScrollView,
                   {
                     ref: function ref(_ref) {
-                      return _this8.scrollView = _ref;
+                      return _this9.scrollView = _ref;
                     },
                     onContentSizeChange: function onContentSizeChange() {
-                      _this8.scrollView.scrollToEnd({
+                      _this9.scrollView.scrollToEnd({
                         animated: false
                       });
                     },
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 1048
+                      lineNumber: 1093
                     }
                   },
                   _react3.default.createElement(
@@ -63141,7 +63207,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 1052
+                        lineNumber: 1097
                       }
                     },
                     this.state.FetchMessage !== "" ? this.state.FetchMessage : null
@@ -63159,7 +63225,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                   },
                   __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 1060
+                    lineNumber: 1105
                   }
                 },
                 _react3.default.createElement(
@@ -63169,7 +63235,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                     onPress: this.onPress_StopAutoFetch,
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 1069
+                      lineNumber: 1111
                     }
                   },
                   _react3.default.createElement(
@@ -63180,10 +63246,312 @@ __d(function (global, _require, module, exports, _dependencyMap) {
                       },
                       __source: {
                         fileName: _jsxFileName,
-                        lineNumber: 1073
+                        lineNumber: 1115
                       }
                     },
                     " Stop Auto Fetch "
+                  )
+                )
+              )
+            )
+          ),
+          _react3.default.createElement(
+            _reactNative.Modal,
+            {
+              animationType: "fade",
+              transparent: true,
+              visible: this.state.visibleSettings,
+              onRequestClose: function onRequestClose() {},
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1126
+              }
+            },
+            _react3.default.createElement(
+              _reactNative.View,
+              {
+                style: {
+                  width: this.screenWidth - 10,
+                  height: this.screenHeight - 100,
+                  marginTop: 60,
+                  marginLeft: 5,
+                  borderRadius: 8,
+                  borderWidth: 0.3,
+                  borderColor: '#a3a3a3',
+                  backgroundColor: "#cecece"
+                },
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1132
+                }
+              },
+              _react3.default.createElement(
+                _reactNative.View,
+                {
+                  style: {
+                    flexDirection: 'row',
+                    marginLeft: 5,
+                    marginTop: 5,
+                    marginRight: 5
+                  },
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1142
+                  }
+                },
+                _react3.default.createElement(
+                  _reactNative.Text,
+                  {
+                    style: {
+                      fontSize: 20,
+                      fontWeight: 'bold'
+                    },
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1149
+                    }
+                  },
+                  "Settings"
+                )
+              ),
+              _react3.default.createElement(
+                _reactNative.View,
+                {
+                  style: {
+                    height: this.screenHeight - 210,
+                    width: this.screenWidth - 20,
+                    marginLeft: 5,
+                    backgroundColor: "#eaeaea",
+                    borderRadius: 8,
+                    borderWidth: 0.5,
+                    borderColor: "#bcbcbc",
+                    marginTop: 10
+                  },
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1157
+                  }
+                },
+                _react3.default.createElement(
+                  _reactNative.View,
+                  {
+                    style: {
+                      flexDirection: 'row',
+                      marginTop: 20,
+                      marginLeft: 0,
+                      marginRight: 30,
+                      marginBottom: 20
+                    },
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1170
+                    }
+                  },
+                  _react3.default.createElement(_reactNativeElements.CheckBox, {
+                    iconRight: true,
+                    title: "Text Admin on failure",
+                    checked: this.state.adminSendError,
+                    containerStyle: {
+                      backgroundColor: 'transparent',
+                      marginLeft: 10,
+                      padding: 0
+                    },
+                    textStyle: {
+                      marginLeft: 0
+                    },
+                    onPress: function onPress(v) {
+                      _this9.setState({
+                        adminSendError: !adminSendError
+                      });
+                    },
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1179
+                    }
+                  })
+                ),
+                _react3.default.createElement(
+                  _reactNative.View,
+                  {
+                    style: {
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginLeft: 10,
+                      marginBottom: 20
+                    },
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1191
+                    }
+                  },
+                  _react3.default.createElement(
+                    _reactNative.Text,
+                    {
+                      style: {
+                        marginBottom: 10,
+                        marginRight: 10,
+                        fontWeight: 'bold'
+                      },
+                      __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 1198
+                      }
+                    },
+                    "Admin Mobile Number"
+                  ),
+                  _react3.default.createElement(_reactNative.TextInput, {
+                    style: styles.inputBox,
+                    underlineColorAndroid: "transparent",
+                    value: adminSMSNumber,
+                    defaultValue: adminSMSNumber,
+                    placeholderTextColor: "#9a73ef",
+                    autoCapitalize: "none",
+                    autoFocus: false,
+                    keyboardType: "phone-pad",
+                    onChangeText: function onChangeText(text) {
+                      return _this9.setState({
+                        adminSMSNumber: text
+                      });
+                    },
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1200
+                    }
+                  })
+                ),
+                _react3.default.createElement(
+                  _reactNative.View,
+                  {
+                    style: {
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginLeft: 10,
+                      marginBottom: 20
+                    },
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1212
+                    }
+                  },
+                  _react3.default.createElement(
+                    _reactNative.Text,
+                    {
+                      style: {
+                        marginBottom: 10,
+                        marginRight: 10,
+                        fontWeight: 'bold'
+                      },
+                      __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 1219
+                      }
+                    },
+                    "Number of SMS retry?"
+                  ),
+                  _react3.default.createElement(_reactNative.TextInput, {
+                    style: styles.inputBox,
+                    underlineColorAndroid: "transparent",
+                    value: smsRetry,
+                    defaultValue: smsRetry,
+                    placeholderTextColor: "#9a73ef",
+                    autoFocus: false,
+                    keyboardType: "numeric",
+                    onChangeText: function onChangeText(text) {
+                      return _this9.setState({
+                        smsRetry: text
+                      });
+                    },
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1221
+                    }
+                  })
+                ),
+                _react3.default.createElement(
+                  _reactNative.View,
+                  {
+                    style: {
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginLeft: 10,
+                      marginBottom: 20
+                    },
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1233
+                    }
+                  },
+                  _react3.default.createElement(
+                    _reactNative.Text,
+                    {
+                      style: {
+                        marginBottom: 10,
+                        marginRight: 10,
+                        fontWeight: 'bold'
+                      },
+                      __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 1240
+                      }
+                    },
+                    "Number of Server query retry?"
+                  ),
+                  _react3.default.createElement(_reactNative.TextInput, {
+                    style: styles.inputBox,
+                    underlineColorAndroid: "transparent",
+                    value: serverRetry,
+                    defaultValue: serverRetry,
+                    placeholderTextColor: "#9a73ef",
+                    autoFocus: false,
+                    keyboardType: "numeric",
+                    onChangeText: function onChangeText(text) {
+                      return _this9.setState({
+                        serverRetry: text
+                      });
+                    },
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1242
+                    }
+                  })
+                )
+              ),
+              _react3.default.createElement(
+                _reactNative.View,
+                {
+                  style: {
+                    marginLeft: 10,
+                    marginRight: 10,
+                    marginTop: 15,
+                    height: 40
+                  },
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1257
+                  }
+                },
+                _react3.default.createElement(
+                  _reactNative.TouchableOpacity,
+                  {
+                    style: styles.button,
+                    onPress: this.onPress_SaveSettings,
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1263
+                    }
+                  },
+                  _react3.default.createElement(
+                    _reactNative.Text,
+                    {
+                      style: {
+                        color: '#ffffff'
+                      },
+                      __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 1267
+                      }
+                    },
+                    " Close "
                   )
                 )
               )
@@ -63201,8 +63569,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
   var styles = _reactNative.StyleSheet.create({
     container_main: {
       flex: 2,
-      backgroundColor: "#e5f9ed",
-      alignItems: 'center'
+      backgroundColor: "#e5f9ed"
     },
     container: {
       flex: 1
@@ -63211,6 +63578,12 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       fontSize: 20,
       textAlign: 'center',
       margin: 10
+    },
+    input: {
+      margin: 15,
+      height: 40,
+      borderColor: '#7a42f4',
+      borderWidth: 1
     },
     instructions: {
       textAlign: 'center',
@@ -63231,7 +63604,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       borderRadius: 8,
       borderWidth: 1,
       marginTop: 10,
-      width: 250,
+      marginRight: 5,
       height: 200,
       marginBottom: 15
     },
@@ -63305,7 +63678,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       marginRight: 10
     }
   });
-},491,[118,179,12,492,605,563,607],"App.js");
+},491,[118,179,12,492,605,563,606],"App.js");
 __d(function (global, _require, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -78605,7 +78978,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       return RNDeviceInfo.getBatteryLevel();
     }
   };
-},607,[12,608],"node_modules/react-native-device-info/deviceinfo.js");
+},606,[12,607],"node_modules/react-native-device-info/deviceinfo.js");
 __d(function (global, _require, module, exports, _dependencyMap) {
   module.exports = {
     uniqueId: '',
@@ -78657,7 +79030,7 @@ __d(function (global, _require, module, exports, _dependencyMap) {
       return Promise.resolve(0);
     }
   };
-},608,[],"node_modules/react-native-device-info/web/index.js");
+},607,[],"node_modules/react-native-device-info/web/index.js");
 require(44);
 require(11);
 //# sourceMappingURL=http://localhost:8081/index.android.map?platform=android

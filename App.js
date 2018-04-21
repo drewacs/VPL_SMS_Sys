@@ -1,4 +1,4 @@
-/**
+/*
  * Developer: Felipe Andrew Lacaya
  * Email: drewacs@gmail.com
  * Project Name: SMS Proxy for Trucking Company
@@ -24,11 +24,13 @@ import {
   Modal,
   ActivityIndicator,
   Dimensions,
+  Switch,
 } from 'react-native';
 
 import {
   //Button,
   Header,
+  CheckBox,
   //Overlay,
 } from 'react-native-elements';
 
@@ -94,6 +96,7 @@ export default class App extends Component<Props> {
 
         visibleWait: false,
         visibleAutoFetch: false,
+        visibleSettings: false,
         autoFetchMessage: "Running Auto Fetch...",
         FetchMessage: "",
         FetchStatus: "STOP",
@@ -120,10 +123,10 @@ export default class App extends Component<Props> {
         adminSMSNumber: "5108670000",
         adminTexted: false,
 
-        smsRetry: 5,
-        serverRetry: 10,
+        smsRetry: "5",
+        serverRetry: "10",
 
-
+        startAutoFetchOnMount: true,
 
 
       }
@@ -150,7 +153,16 @@ export default class App extends Component<Props> {
     //DeviceEventEmitter.addListener('sms_onDelivery', (msg) => {
     //  this.setState({eventSMSReceived:msg});
     //});
+
+    if (this.state.startAutoFetchOnMount) {
+      this.runAutoFetch();
+    }
   }
+
+
+  removeControlCharacter(str) {
+ 		return str.replace(/[\x00-\x1F\x7F-\x9F\x60]/g, " ");
+ 	}
 
 
   async wait(ms, message) {
@@ -180,7 +192,7 @@ export default class App extends Component<Props> {
   async sendSMS() {
     result = 0;
 
-    await SmsAndroid.autoSend(this.state.SendTo, this.state.Message, (err) => {
+    await SmsAndroid.autoSend(this.state.SendTo, this.removeControlCharacter(this.state.Message), (err) => {
       //Alert.alert("Failed to send SMS. Check console");
       //console.log("SMS SEND ERROR", err);
       result = err;
@@ -601,6 +613,12 @@ export default class App extends Component<Props> {
 
   onPress_AutoFetch = () => {
 
+    this.runAutoFetch();
+
+  }
+
+  runAutoFetch() {
+
     (async () => {
       this.setState({autoFetchMessage: "Running Auto Fetch..."});
       this.setState({visibleAutoFetch: true});
@@ -625,6 +643,8 @@ export default class App extends Component<Props> {
 
         if( result == 0 ) {
           //this.writeFetchMessage("No outbound messages from the server.");
+          //Though no outbound message, it means server is accessable.
+          this.serverAccessErrorTry = 0;
         }
         else if ( result == -1 ){
           this.writeFetchMessage("Unable to access server!");
@@ -681,7 +701,7 @@ export default class App extends Component<Props> {
 
 
             //Number of retry reached, marked not sent and reset retry.
-            if ( this.state.lastOutboundMsgTry == this.state.smsRetry ) {
+            if ( this.state.lastOutboundMsgTry == Number(this.state.smsRetry) ) {
               this.writeFetchMessage("Number of retry reached!");
               //To Do: Make this marking as failure instead of ARD_SENT.
               await this.deleteMessage(loc, false, this.ardErrorCode);
@@ -740,7 +760,7 @@ export default class App extends Component<Props> {
         }
 
 
-        if( this.serverAccessErrorTry > this.state.serverRetry && !this.state.adminTexted ) {
+        if( this.serverAccessErrorTry > Number(this.state.serverRetry) && !this.state.adminTexted ) {
           //Text Admin for help once
           date = new Date();
           this.writeFetchMessage(date);
@@ -787,8 +807,31 @@ export default class App extends Component<Props> {
   }
 
 
+  onPress_Settings = () => {
+    (async () => {
+
+
+      this.setState({visibleSettings: true});
+    })();
+  }
+
+
+  onPress_SaveSettings = () => {
+    (async () => {
+
+
+      this.setState({visibleSettings: false});
+    })();
+  }
+
+
+
+
+
+
+
   render() {
-    const { DeleteArdIn } = this.state;
+    const { DeleteArdIn, adminSendError, adminSMSNumber, serverRetry, smsRetry } = this.state;
     return (
 
       <View style={styles.container}>
@@ -796,7 +839,12 @@ export default class App extends Component<Props> {
           //placement={false}
           backgroundColor = "#0a3a1d"
           //height = {50}
-          leftComponent={{ icon: 'settings', color: '#fff' }}
+          leftComponent={{
+            icon: 'settings',
+            color: '#fff',
+            onPress: this.onPress_Settings,
+            underlayColor: '#0a3a1d',
+          }}
           centerComponent={{
             text: 'VPL, Inc. SMS Messaging',
             style: {
@@ -806,7 +854,9 @@ export default class App extends Component<Props> {
             } }}
           rightComponent={{
             icon: 'visibility',
-            color: '#fff'
+            color: '#fff',
+            onPress: this.onPress_AutoFetch,
+            underlayColor: '#0a3a1d',
           }}
           outerContainerStyles={{height:50}}
         />
@@ -950,7 +1000,7 @@ export default class App extends Component<Props> {
         </ScrollView>
         </View>
 
-        // Waiting window modal
+
         <Modal
           animationType="fade"
           transparent={true}
@@ -989,7 +1039,7 @@ export default class App extends Component<Props> {
         </Modal>
 
 
-        // Auto Fetch Modal window
+
         <Modal
           animationType="fade"
           transparent={true}
@@ -1070,6 +1120,158 @@ export default class App extends Component<Props> {
 
         </Modal>
 
+
+
+
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={this.state.visibleSettings}
+          onRequestClose={() => {}}
+          >
+          <View  style={{
+          width: this.screenWidth - 10,
+          height: this.screenHeight - 100 ,
+          marginTop: 60,
+          marginLeft: 5,
+          borderRadius: 8,
+          borderWidth: 0.3,
+          borderColor: '#a3a3a3',
+          backgroundColor: "#cecece" }}>
+
+            <View style={{
+              flexDirection: 'row',
+              marginLeft: 5,
+              marginTop: 5,
+              marginRight: 5,
+            }}>
+
+              <Text style={{
+                fontSize: 20,
+                fontWeight: 'bold',}}
+              >
+                Settings
+              </Text>
+            </View>
+
+            <View style={{
+              height:this.screenHeight - 210,
+              width:this.screenWidth-20,
+              marginLeft:5,
+              //padding: 5,
+              backgroundColor: "#eaeaea",
+              borderRadius: 8,
+              borderWidth: 0.5,
+              borderColor: "#bcbcbc",
+              marginTop: 10,
+              //alignItems: 'center',
+            }}>
+
+              <View style={{
+
+                flexDirection: 'row',
+                //alignItems: 'center',
+                marginTop: 20,
+                marginLeft:0,
+                marginRight:30,
+                marginBottom:20,
+              }}>
+                <CheckBox
+                  iconRight
+                  title='Text Admin on failure'
+                  checked={this.state.adminSendError}
+                  containerStyle={{backgroundColor:'transparent', marginLeft:10, padding:0}}
+                  textStyle={{marginLeft:0}}
+                  onPress={(v) => {
+                    this.setState({adminSendError:!adminSendError})
+                  }}
+                />
+
+              </View>
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginLeft:10,
+                  //marginRight:30,
+                  marginBottom:20,
+                }}>
+                  <Text style={{marginBottom: 10, marginRight: 10, fontWeight: 'bold'}}>Admin Mobile Number</Text>
+
+                  <TextInput style = {styles.inputBox}
+                   underlineColorAndroid = "transparent"
+                   value={adminSMSNumber}
+                   defaultValue={adminSMSNumber}
+                   placeholderTextColor = "#9a73ef"
+                   autoCapitalize = "none"
+                   autoFocus={false}
+                   keyboardType='phone-pad'
+                   onChangeText={(text) => this.setState({adminSMSNumber: text})}
+                  />
+                </View>
+
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginLeft:10,
+                  //marginRight:30,
+                  marginBottom:20,
+                }}>
+                  <Text style={{marginBottom: 10, marginRight: 10, fontWeight: 'bold'}}>Number of SMS retry?</Text>
+
+                  <TextInput style = {styles.inputBox}
+                   underlineColorAndroid = "transparent"
+                   value={smsRetry}
+                   defaultValue={smsRetry}
+                   placeholderTextColor = "#9a73ef"
+
+                   autoFocus={false}
+                   keyboardType='numeric'
+                   onChangeText={(text) => this.setState({smsRetry: text})}
+                  />
+                </View>
+
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginLeft:10,
+                  //marginRight:30,
+                  marginBottom:20,
+                }}>
+                  <Text style={{marginBottom: 10, marginRight: 10, fontWeight: 'bold'}}>Number of Server query retry?</Text>
+
+                  <TextInput style = {styles.inputBox}
+                   underlineColorAndroid = "transparent"
+                   value={serverRetry}
+                   defaultValue={serverRetry}
+                   placeholderTextColor = "#9a73ef"
+
+                   autoFocus={false}
+                   keyboardType='numeric'
+                   onChangeText={(text) => this.setState({serverRetry: text})}
+                  />
+                </View>
+            </View>
+
+
+
+            <View style={{
+              marginLeft: 10,
+              marginRight: 10,
+              marginTop: 15,
+              height: 40,
+            }}>
+              <TouchableOpacity
+               style={styles.button}
+               onPress={this.onPress_SaveSettings}
+              >
+                <Text style={{color:'#ffffff'}}> Close </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+
+        </Modal>
+
       </View>
     );
   }
@@ -1080,7 +1282,7 @@ const styles = StyleSheet.create({
     flex: 2,
     //marginTop: 20,
     backgroundColor: "#e5f9ed",
-    alignItems: 'center'
+    //alignItems: 'center'
   },
   container: {
     flex: 1,
@@ -1090,6 +1292,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     margin: 10,
   },
+  input: {
+      margin: 15,
+      height: 40,
+      borderColor: '#7a42f4',
+      borderWidth: 1
+   },
+
   instructions: {
     textAlign: 'center',
     color: '#333333',
@@ -1112,7 +1321,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     marginTop: 10,
-    width: 250,
+    marginRight: 5,
+    //width: 250,
     height: 200,
     marginBottom: 15
   },
